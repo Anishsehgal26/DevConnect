@@ -22,4 +22,19 @@ model User {
   github    String?
   linkedin  String?
   createdAt DateTime @default(now())
+
+  projects Project[]
+}
+
+model Project {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  techStack   String
+  githubLink  String?
+  liveLink    String?
+  createdAt   DateTime @default(now())
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
