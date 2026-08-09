@@ -69,3 +69,88 @@ export const getProjects = async (
     });
   }
 };
+
+export const updateProject = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const userId = req.user?.userId;
+
+    if (!userId) {
+      res.status(401).json({ message: "Unauthorized" });
+      return;
+    }
+
+    const projectId = Number(req.params.id);
+
+    const existingProject = await prisma.project.findFirst({
+      where: {
+        id: projectId,
+        userId,
+      },
+    });
+
+    if (!existingProject) {
+      res.status(404).json({ message: "Project not found" });
+      return;
+    }
+
+    const { title, description, techStack, githubLink, liveLink } = req.body;
+
+    const updatedProject = await prisma.project.update({
+      where: { id: projectId },
+      data: {
+        title,
+        description,
+        techStack,
+        githubLink,
+        liveLink,
+      },
+    });
+
+    res.json(updatedProject);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const deleteProject = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const userId = req.user?.userId;
+
+    if (!userId) {
+      res.status(401).json({ message: "Unauthorized" });
+      return;
+    }
+
+    const projectId = Number(req.params.id);
+
+    const existingProject = await prisma.project.findFirst({
+      where: {
+        id: projectId,
+        userId,
+      },
+    });
+
+    if (!existingProject) {
+      res.status(404).json({ message: "Project not found" });
+      return;
+    }
+
+    await prisma.project.delete({
+      where: { id: projectId },
+    });
+
+    res.json({
+      message: "Project deleted successfully",
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
